@@ -1,0 +1,12 @@
+services:
+  php-apache:
+    build: .
+    container_name: VendingMachine
+    ports:
+      - "3333:443"
+    volumes:
+      - ./php:/var/www/html
+      - ./certs:/etc/apache2/ssl:ro
+
+volumes:
+  db_data:
