@@ -48,6 +48,10 @@ It's something that in a real environment could happen but it's also a mistake t
 
 For checking the prototype functionality I will use symfony to create a small basic website with all the options available and some debug info.
 
+Another decision I've made, based on some errors related to PHP management of float numbers, is I will use integers to manage the coin values. To do that I will work always with cents instead of floats with two decimal values.
+
+One last nore when reviwing the code. IN DDD commented code should not be used except in very complex parts of the code. The usage of the ubiquitous language and the way of programming should be the basis for understanding the code.
+
 ---
 
 # USE CASES
