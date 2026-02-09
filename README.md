@@ -137,3 +137,4 @@ This slice will have a single Aggregation which Aggregte Root will be VendingMac
         * It would be good also to check the "Client Mode" does not last for too long because a Client inserted a coin and did not do anythig with it. Could be good to eject the coins as an example.
     - I had to add read functions in the vending machine entity for displaying all the info in the twig. They should have to be removed and implement another way to get the info if needed.
     - Probably thge VendingMachine Entity could be divided using behaviours to separate client and service functions and make it smaller and more mantainable.
+    - Could be good to do a coverage map to see if there are missing tests.
