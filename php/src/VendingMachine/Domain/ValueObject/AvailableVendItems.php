@@ -59,5 +59,14 @@ final class AvailableVendItems
         return new self($new);
     }
 
+    public static function emptyCatalog(): self
+    {
+        return new self([
+            VendItemSelector::water()->value() => 0,
+            VendItemSelector::juice()->value() => 0,
+            VendItemSelector::soda()->value()  => 0,
+        ]);
+    }
+
 
 }

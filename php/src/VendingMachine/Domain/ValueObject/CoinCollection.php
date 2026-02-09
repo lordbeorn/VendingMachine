@@ -52,6 +52,12 @@ final class CoinCollection
         return new self(array_values($remaining));
     }
 
+    public function merge(self $other): self
+    {
+        return new self(array_merge($this->coins, $other->coins));
+    }
+
+
     public function totalCents(): int
     {
         $sum = 0;

@@ -119,4 +119,80 @@ final class CoinCollectionTest extends TestCase
         self::assertTrue($remaining->isEmpty());
         self::assertSame(0, $remaining->totalCents());
     }
+
+public function test_merge_two_empty_collections_results_in_empty(): void
+    {
+        $a = CoinCollection::empty();
+        $b = CoinCollection::empty();
+
+        $merged = $a->merge($b);
+
+        self::assertTrue($merged->isEmpty());
+    }
+
+    public function test_merge_empty_with_non_empty_collection(): void
+    {
+        $coins = CoinCollection::empty()
+            ->add(Coin::fiveCents())
+            ->add(Coin::tenCents());
+
+        $merged = CoinCollection::empty()->merge($coins);
+
+        self::assertSame(15, $merged->totalCents());
+        self::assertCount(2, $merged->coins());
+    }
+
+    public function test_merge_non_empty_with_empty_collection(): void
+    {
+        $coins = CoinCollection::empty()
+            ->add(Coin::twentyFiveCents());
+
+        $merged = $coins->merge(CoinCollection::empty());
+
+        self::assertSame(25, $merged->totalCents());
+        self::assertCount(1, $merged->coins());
+    }
+
+    public function test_merge_combines_all_coins(): void
+    {
+        $a = CoinCollection::empty()
+            ->add(Coin::fiveCents())
+            ->add(Coin::tenCents());
+
+        $b = CoinCollection::empty()
+            ->add(Coin::twentyFiveCents())
+            ->add(Coin::fiveCents());
+
+        $merged = $a->merge($b);
+
+        self::assertSame(45, $merged->totalCents());
+        self::assertCount(4, $merged->coins());
+    }
+
+    public function test_merge_does_not_mutate_original_collections(): void
+    {
+        $a = CoinCollection::empty()->add(Coin::fiveCents());
+        $b = CoinCollection::empty()->add(Coin::tenCents());
+
+        $merged = $a->merge($b);
+
+        self::assertSame(5, $a->totalCents());
+        self::assertSame(10, $b->totalCents());
+        self::assertSame(15, $merged->totalCents());
+    }
+
+    public function test_merge_preserves_duplicate_coins(): void
+    {
+        $a = CoinCollection::empty()
+            ->add(Coin::fiveCents());
+
+        $b = CoinCollection::empty()
+            ->add(Coin::fiveCents());
+
+        $merged = $a->merge($b);
+
+        self::assertCount(2, $merged->coins());
+        self::assertSame(10, $merged->totalCents());
+    }
+
 }

@@ -98,4 +98,33 @@ final class AvailableVendItemsTest extends TestCase
 
         $available->vendOne(VendItemSelector::water());
     }
+
+    public function test_empty_catalog_contains_all_items_with_zero_stock(): void
+        {
+            $catalog = AvailableVendItems::emptyCatalog();
+
+            self::assertSame(
+                0,
+                $catalog->quantityOf(VendItemSelector::water())
+            );
+
+            self::assertSame(
+                0,
+                $catalog->quantityOf(VendItemSelector::juice())
+            );
+
+            self::assertSame(
+                0,
+                $catalog->quantityOf(VendItemSelector::soda())
+            );
+        }
+
+        public function test_empty_catalog_does_not_throw_item_not_found(): void
+        {
+            $catalog = AvailableVendItems::emptyCatalog();
+
+            self::assertIsInt($catalog->quantityOf(VendItemSelector::water()));
+            self::assertIsInt($catalog->quantityOf(VendItemSelector::juice()));
+            self::assertIsInt($catalog->quantityOf(VendItemSelector::soda()));
+        }
 }
