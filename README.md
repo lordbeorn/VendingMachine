@@ -76,6 +76,17 @@ I can divide two different groups of use cases depending on the actor.
 I will use hexagonal architecture even it's a small project. I like to use the slicing arquitecture when developing in Hexagonal Arquitecture so I will build everything around the slice "VendingMachine".  
 This slice will have a single Aggregation which Aggregte Root will be VendingMachine.
 
+# ENTITIES
+
+From the challenge description trying to convert it into a business languange I've stracted the following entity. It's different from Value Objects because the have meaning by themselves.
+
+**VendItem**:
+    - Represents one of the products sold by the machine.
+    - It only needs to know its identity based on the product selector items. 
+    - A VendItem it's not related to stock because it's not related to its own identity.
+    - A VentItem could be related to price but I think it's not a real property of the VendItem entity and it's more related to the Vending Machine and its selector.
+
+
 
 
 # VALUE OBJECTS
