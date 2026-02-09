@@ -24,8 +24,26 @@ final class AvailableVendItems
         return new self([]);
     }
 
+    public static function emptyCatalog(): self
+    {
+        return new self([
+            VendItemSelector::water()->value() => 0,
+            VendItemSelector::juice()->value() => 0,
+            VendItemSelector::soda()->value()  => 0,
+        ]);
+    }
 
-    public  function quantityOf(VendItemSelector $selector): int
+    public static function fromArray(array $items): self
+    {
+        return new self($items);
+    }
+
+    public function toArray(): array
+    {
+        return $this->vendItemsQuantities;
+    }
+
+    public function quantityOf(VendItemSelector $selector): int
     {
         if (!array_key_exists($selector->value(), $this->vendItemsQuantities)) {
             throw VendItemNotFound::fromSelector($selector);
@@ -54,19 +72,10 @@ final class AvailableVendItems
             throw new \DomainException('New value must be greater or equal to 0.');
         }
 
-        $new[$selector->value()] = $units;
+        $new = $this->vendItemsQuantities;
+        $new[$selector->value()] =
+            ($new[$selector->value()] ?? 0) + $units;
 
         return new self($new);
     }
-
-    public static function emptyCatalog(): self
-    {
-        return new self([
-            VendItemSelector::water()->value() => 0,
-            VendItemSelector::juice()->value() => 0,
-            VendItemSelector::soda()->value()  => 0,
-        ]);
-    }
-
-
 }

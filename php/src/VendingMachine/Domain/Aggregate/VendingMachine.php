@@ -47,6 +47,52 @@ final class VendingMachine
         );
     }
 
+    public static function restore(
+        Mode $mode,
+        CoinCollection $insertedCoins,
+        AvailableVendItems $availableVendItems,
+        CoinCollection $availableChange
+    ): self {
+        return new self(
+            $mode,
+            $insertedCoins,
+            $availableVendItems,
+            $availableChange,
+            new ChangeCalculator()
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'mode' => $this->mode->value(),
+            'inserted' => array_map(
+                fn (Coin $coin) => $coin->cents(),
+                $this->insertedCoins->coins()
+            ),
+            'availableChange' => array_map(
+                fn (Coin $coin) => $coin->cents(),
+                $this->availableChange->coins()
+            ),
+            'stock' => $this->availableVendItems->toArray(),
+        ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return self::restore(
+            Mode::fromString($data['mode']),
+            CoinCollection::fromCoins(
+                ...array_map([Coin::class, 'fromCents'], $data['inserted'])
+            ),
+            AvailableVendItems::fromArray($data['stock']),
+            CoinCollection::fromCoins(
+                ...array_map([Coin::class, 'fromCents'], $data['availableChange'])
+            )
+        );
+    }
+
+
 
     ///////////////////
     /// CLIENT ACTIONS
@@ -177,6 +223,7 @@ final class VendingMachine
 
         $this->availableChange = $availableChange;
     }
+
 
 
 

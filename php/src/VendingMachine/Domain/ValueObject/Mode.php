@@ -31,6 +31,18 @@ final class Mode
         return new self(self::SERVICE);
     }
 
+    public static function fromString(string $value): self
+    {
+        return match ($value) {
+            self::STAND_BY => self::standBy(),
+            self::CLIENT   => self::client(),
+            self::SERVICE  => self::service(),
+            default => throw new \InvalidArgumentException(
+                sprintf('Invalid vending machine mode "%s".', $value)
+            ),
+        };
+    }
+
     public function isStandBy(): bool
     {
         return $this->value === self::STAND_BY;
@@ -45,7 +57,6 @@ final class Mode
     {
         return $this->value === self::SERVICE;
     }
-
 
     public function toClient(): self
     {
@@ -78,5 +89,4 @@ final class Mode
     {
         return $this->value;
     }
-
 }

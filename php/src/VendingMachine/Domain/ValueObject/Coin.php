@@ -38,6 +38,11 @@ final class Coin
         return new self(100);
     }
 
+    public static function fromCents(int $cents): self
+    {
+        return new self($cents);
+    }
+
     public function cents(): int
     {
         return $this->cents;
