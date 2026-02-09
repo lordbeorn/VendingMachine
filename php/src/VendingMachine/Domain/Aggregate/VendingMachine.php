@@ -11,17 +11,28 @@ use App\VendingMachine\Domain\ValueObject\Mode;
 use App\VendingMachine\Domain\ValueObject\VendItemSelector;
 use App\VendingMachine\Domain\Exception\OperationNotAllowed;
 use App\VendingMachine\Domain\Exception\VendItemOutOfStock;
+use App\VendingMachine\Domain\Service\ChangeCalculator;
 
 final class VendingMachine
 {
+    private Mode $mode;
+    private CoinCollection $insertedCoins;
+    private AvailableVendItems $availableVendItems;
+    private CoinCollection $availableChange;
+    private ChangeCalculator $changeCalculator;
 
     private function __construct(
-        private Mode $mode,
-        private CoinCollection $insertedCoins,
-        private AvailableVendItems $availableVendItems,
-        private CoinCollection $availableChange
+        Mode $mode,
+        CoinCollection $insertedCoins,
+        AvailableVendItems $availableVendItems,
+        CoinCollection $availableChange,
+        ChangeCalculator $changeCalculator
     ) {
-
+        $this->mode = $mode;
+        $this->insertedCoins = $insertedCoins;
+        $this->availableVendItems = $availableVendItems;
+        $this->availableChange = $availableChange;
+        $this->changeCalculator = $changeCalculator;
     }
 
     public static function install(): self
@@ -30,7 +41,8 @@ final class VendingMachine
             Mode::standBy(),
             CoinCollection::empty(),
             AvailableVendItems::emptyCatalog(),
-            CoinCollection::empty()
+            CoinCollection::empty(),
+            new ChangeCalculator()
         );
     }
 
@@ -62,18 +74,26 @@ final class VendingMachine
             throw new \DomainException('Not enough money.');
         }
 
-        $this->availableVendItems =
-            $this->availableVendItems->vendOne($selectedVendItem);
 
         $changeAmount = $paid - $price;
 
-        $newAvailableChange = $this->availableChange->merge($this->insertedCoins);
+        $temporaryAvailableChange = $this->availableChange->merge($this->insertedCoins);
 
-        $this->insertedCoins = CoinCollection::empty();
+        $changeCoinCollection =
+            $this->changeCalculator->calculate(
+                $changeAmount,
+                $temporaryAvailableChange
+            );
 
+        $newAvailableChange =
+            $temporaryAvailableChange->subtract($changeCoinCollection);
+
+        $this->insertedCoins   = CoinCollection::empty();
         $this->availableChange = $newAvailableChange;
 
-        // TODO: prepare the change
+        $this->availableVendItems =
+            $this->availableVendItems->vendOne($selectedVendItem);
+
 
         // TODO: return information about the operation
 

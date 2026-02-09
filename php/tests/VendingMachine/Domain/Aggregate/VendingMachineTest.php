@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\VendingMachine\Domain\Aggregate;
 
 use App\VendingMachine\Domain\Aggregate\VendingMachine;
+use App\VendingMachine\Domain\Exception\CannotMakeExactChange;
 use App\VendingMachine\Domain\Exception\OperationNotAllowed;
 use App\VendingMachine\Domain\Exception\VendItemOutOfStock;
 use App\VendingMachine\Domain\ValueObject\Coin;
@@ -27,7 +28,6 @@ final class VendingMachineTest extends TestCase
     {
         $machine = VendingMachine::install();
 
-        // should not throw
         $machine->insertCoin(Coin::fiveCents());
 
         self::assertTrue(true);
@@ -37,12 +37,10 @@ final class VendingMachineTest extends TestCase
     {
         $machine = VendingMachine::install();
 
-        // prepare stock
         $machine->enterServiceMode();
         $machine->refillVendItem(VendItemSelector::water(), 1);
         $machine->exitServiceMode();
 
-        // insufficient money (10 < 65)
         $machine->insertCoin(Coin::tenCents());
 
         $this->expectException(DomainException::class);
@@ -55,7 +53,6 @@ final class VendingMachineTest extends TestCase
     {
         $machine = VendingMachine::install();
 
-        // exact payment for water: 25 + 25 + 10 + 5 = 65
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::tenCents());
@@ -70,21 +67,17 @@ final class VendingMachineTest extends TestCase
     {
         $machine = VendingMachine::install();
 
-        // refill exactly one item
         $machine->enterServiceMode();
         $machine->refillVendItem(VendItemSelector::water(), 1);
         $machine->exitServiceMode();
 
-        // exact payment
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::tenCents());
         $machine->insertCoin(Coin::fiveCents());
 
-        // first sale succeeds
         $machine->sellVendItem(VendItemSelector::water());
 
-        // second sale fails due to stock (coins were consumed correctly)
         $this->expectException(VendItemOutOfStock::class);
 
         $machine->sellVendItem(VendItemSelector::water());
@@ -94,12 +87,10 @@ final class VendingMachineTest extends TestCase
     {
         $machine = VendingMachine::install();
 
-        // refill exactly one unit
         $machine->enterServiceMode();
         $machine->refillVendItem(VendItemSelector::water(), 1);
         $machine->exitServiceMode();
 
-        // first sale
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::tenCents());
@@ -107,13 +98,11 @@ final class VendingMachineTest extends TestCase
 
         $machine->sellVendItem(VendItemSelector::water());
 
-        // re-pay exact amount
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::tenCents());
         $machine->insertCoin(Coin::fiveCents());
 
-        // no stock left
         $this->expectException(VendItemOutOfStock::class);
 
         $machine->sellVendItem(VendItemSelector::water());
@@ -132,10 +121,8 @@ final class VendingMachineTest extends TestCase
     {
         $machine = VendingMachine::install();
 
-        // first transition is allowed
         $machine->enterServiceMode();
 
-        // cannot enter again
         $this->expectException(OperationNotAllowed::class);
 
         $machine->enterServiceMode();
@@ -148,5 +135,53 @@ final class VendingMachineTest extends TestCase
         $this->expectException(OperationNotAllowed::class);
 
         $machine->exitServiceMode();
+    }
+
+    public function test_change_coins_are_removed_from_machine(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->enterServiceMode();
+        $machine->refillVendItem(VendItemSelector::water(), 3);
+        $machine->exitServiceMode();
+
+        $machine->insertCoin(Coin::twentyFiveCents());
+        $machine->insertCoin(Coin::twentyFiveCents());
+        $machine->insertCoin(Coin::tenCents());
+        $machine->insertCoin(Coin::tenCents());
+        $machine->insertCoin(Coin::fiveCents());
+        $machine->sellVendItem(VendItemSelector::water());
+
+        $machine->insertCoin(Coin::hundredCents());
+        $machine->sellVendItem(VendItemSelector::water());
+
+        $machine->insertCoin(Coin::hundredCents());
+
+        $this->expectException(CannotMakeExactChange::class);
+
+        $machine->sellVendItem(VendItemSelector::water());
+    }
+
+
+    public function test_machine_can_make_change_when_enough_coins_exist(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->enterServiceMode();
+        $machine->refillVendItem(VendItemSelector::water(), 2);
+        $machine->exitServiceMode();
+
+        $machine->insertCoin(Coin::twentyFiveCents());
+        $machine->insertCoin(Coin::twentyFiveCents());
+        $machine->insertCoin(Coin::tenCents());
+        $machine->insertCoin(Coin::fiveCents());
+
+        $machine->sellVendItem(VendItemSelector::water());
+
+        $machine->insertCoin(Coin::hundredCents());
+
+        $machine->sellVendItem(VendItemSelector::water());
+
+        self::assertTrue(true);
     }
 }

@@ -195,4 +195,98 @@ public function test_merge_two_empty_collections_results_in_empty(): void
         self::assertSame(10, $merged->totalCents());
     }
 
+
+ public function test_from_coins_creates_collection_with_given_coins(): void
+    {
+        $collection = CoinCollection::fromCoins(
+            Coin::fiveCents(),
+            Coin::tenCents(),
+            Coin::twentyFiveCents()
+        );
+
+        self::assertCount(3, $collection->coins());
+    }
+
+    public function test_from_coins_total_cents_is_sum_of_given_coins(): void
+    {
+        $collection = CoinCollection::fromCoins(
+            Coin::twentyFiveCents(),
+            Coin::twentyFiveCents(),
+            Coin::tenCents(),
+            Coin::fiveCents()
+        );
+
+        self::assertSame(65, $collection->totalCents());
+    }
+
+    public function test_from_coins_does_not_mutate_original_instances(): void
+    {
+        $coin = Coin::tenCents();
+
+        $collection = CoinCollection::fromCoins($coin);
+
+        $newCollection = $collection->add(Coin::fiveCents());
+
+        self::assertCount(1, $collection->coins());
+        self::assertCount(2, $newCollection->coins());
+    }
+
+    public function test_from_coins_can_be_merged_with_another_collection(): void
+    {
+        $a = CoinCollection::fromCoins(
+            Coin::fiveCents(),
+            Coin::tenCents()
+        );
+
+        $b = CoinCollection::fromCoins(
+            Coin::twentyFiveCents()
+        );
+
+        $merged = $a->merge($b);
+
+        self::assertSame(40, $merged->totalCents());
+    }
+
+    public function test_from_coins_can_subtract_another_collection(): void
+    {
+        $collection = CoinCollection::fromCoins(
+            Coin::fiveCents(),
+            Coin::tenCents(),
+            Coin::twentyFiveCents()
+        );
+
+        $toSubtract = CoinCollection::fromCoins(
+            Coin::tenCents()
+        );
+
+        $result = $collection->subtract($toSubtract);
+
+        self::assertSame(30, $result->totalCents());
+        self::assertCount(2, $result->coins());
+    }
+
+    public function test_subtracting_coin_not_present_throws_exception(): void
+    {
+        $collection = CoinCollection::fromCoins(
+            Coin::fiveCents()
+        );
+
+        $toSubtract = CoinCollection::fromCoins(
+            Coin::tenCents()
+        );
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Cannot subtract coins that are not present.');
+
+        $collection->subtract($toSubtract);
+    }
+
+    public function test_from_coins_with_no_arguments_creates_empty_collection(): void
+    {
+        $collection = CoinCollection::fromCoins();
+
+        self::assertTrue($collection->isEmpty());
+        self::assertSame(0, $collection->totalCents());
+    }
+
 }

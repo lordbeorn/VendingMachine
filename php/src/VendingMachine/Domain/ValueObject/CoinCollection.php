@@ -21,6 +21,11 @@ final class CoinCollection
         return new self([]);
     }
 
+    public static function fromCoins(Coin ...$coins): self
+    {
+        return new self($coins);
+    }
+
     public function add(Coin $coin): self
     {
         $new = $this->coins;
