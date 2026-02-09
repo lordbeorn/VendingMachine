@@ -110,5 +110,8 @@ From the request I can identify already several value objects. They are value ob
     - I had doubts about converting this V.O. in an entity "Stock" because it's mutable and have some kind of identity.
     - Finally I opted for a Value Object because a stock does not have a real meaning by itself. All the stocks are the same and it does not matter the products or the quantities they have.
 
-    
+**Mode**:
+    - It represents the current vending machine mode in a "state" machine.
+    - Although this one does not appear directly in the business request I think this Value Object would appear when the dialog between the Tech and the Business is developed. 
+    - Tech could explain these kind of restrictions should need to be checked to prevent problems. The dialog in DDD must be bidirectional.
     
