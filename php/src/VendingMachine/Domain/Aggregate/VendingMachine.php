@@ -12,6 +12,7 @@ use App\VendingMachine\Domain\ValueObject\VendItemSelector;
 use App\VendingMachine\Domain\Exception\OperationNotAllowed;
 use App\VendingMachine\Domain\Exception\VendItemOutOfStock;
 use App\VendingMachine\Domain\Service\ChangeCalculator;
+use App\VendingMachine\Domain\ValueObject\VendResult;
 
 final class VendingMachine
 {
@@ -57,11 +58,9 @@ final class VendingMachine
 
     }
 
-    public function sellVendItem(VendItemSelector $selectedVendItem): void
+    public function sellVendItem(VendItemSelector $selectedVendItem): VendResult
     {
-
         $this->ensureOperationIsInClientMode();
-
 
         if ($this->availableVendItems->quantityOf($selectedVendItem) <= 0) {
             throw VendItemOutOfStock::becauseNoUnitsLeft();
@@ -74,10 +73,10 @@ final class VendingMachine
             throw new \DomainException('Not enough money.');
         }
 
-
         $changeAmount = $paid - $price;
 
-        $temporaryAvailableChange = $this->availableChange->merge($this->insertedCoins);
+        $temporaryAvailableChange =
+            $this->availableChange->merge($this->insertedCoins);
 
         $changeCoinCollection =
             $this->changeCalculator->calculate(
@@ -94,9 +93,10 @@ final class VendingMachine
         $this->availableVendItems =
             $this->availableVendItems->vendOne($selectedVendItem);
 
-
-        // TODO: return information about the operation
-
+        return VendResult::success(
+            $selectedVendItem,
+            $changeCoinCollection
+        );
     }
 
     private function ensureOperationIsInClientMode(): void

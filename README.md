@@ -242,6 +242,9 @@ From the request I can identify already several value objects. They are value ob
     - It represents the current vending machine mode in a "state" machine.
     - Although this one does not appear directly in the business request I think this Value Object would appear when the dialog between the Tech and the Business is developed. 
     - Tech could explain these kind of restrictions should need to be checked to prevent problems. The dialog in DDD must be bidirectional.
+
+**VendResult**:
+    - It allows to return an answer from the Sell Vend Item action.
     
 
 

@@ -10,6 +10,7 @@ use App\VendingMachine\Domain\Exception\OperationNotAllowed;
 use App\VendingMachine\Domain\Exception\VendItemOutOfStock;
 use App\VendingMachine\Domain\ValueObject\Coin;
 use App\VendingMachine\Domain\ValueObject\VendItemSelector;
+use App\VendingMachine\Domain\ValueObject\VendResult;
 use DomainException;
 use PHPUnit\Framework\TestCase;
 
@@ -63,7 +64,7 @@ final class VendingMachineTest extends TestCase
         $machine->sellVendItem(VendItemSelector::water());
     }
 
-    public function test_successful_sale_consumes_inserted_coins(): void
+    public function test_successful_sale_returns_vend_result_and_consumes_inserted_coins(): void
     {
         $machine = VendingMachine::install();
 
@@ -76,8 +77,15 @@ final class VendingMachineTest extends TestCase
         $machine->insertCoin(Coin::tenCents());
         $machine->insertCoin(Coin::fiveCents());
 
-        $machine->sellVendItem(VendItemSelector::water());
+        $result = $machine->sellVendItem(VendItemSelector::water());
 
+        self::assertInstanceOf(VendResult::class, $result);
+        self::assertTrue(
+            $result->item()->equals(VendItemSelector::water())
+        );
+        self::assertTrue($result->change()->isEmpty());
+
+        // no money left → cannot buy again
         $this->expectException(VendItemOutOfStock::class);
 
         $machine->sellVendItem(VendItemSelector::water());
@@ -145,23 +153,28 @@ final class VendingMachineTest extends TestCase
         $machine->refillVendItem(VendItemSelector::water(), 3);
         $machine->exitServiceMode();
 
+        // Seed machine with enough change
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::tenCents());
         $machine->insertCoin(Coin::tenCents());
         $machine->insertCoin(Coin::fiveCents());
+
         $machine->sellVendItem(VendItemSelector::water());
 
+        // First overpay succeeds
         $machine->insertCoin(Coin::hundredCents());
-        $machine->sellVendItem(VendItemSelector::water());
+        $result = $machine->sellVendItem(VendItemSelector::water());
 
+        self::assertSame(35, $result->change()->totalCents());
+
+        // Second overpay must fail (change was removed)
         $machine->insertCoin(Coin::hundredCents());
 
         $this->expectException(CannotMakeExactChange::class);
 
         $machine->sellVendItem(VendItemSelector::water());
     }
-
 
     public function test_machine_can_make_change_when_enough_coins_exist(): void
     {
@@ -171,6 +184,7 @@ final class VendingMachineTest extends TestCase
         $machine->refillVendItem(VendItemSelector::water(), 2);
         $machine->exitServiceMode();
 
+        // Exact payment seeds machine
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::twentyFiveCents());
         $machine->insertCoin(Coin::tenCents());
@@ -178,10 +192,11 @@ final class VendingMachineTest extends TestCase
 
         $machine->sellVendItem(VendItemSelector::water());
 
+        // Overpay should succeed
         $machine->insertCoin(Coin::hundredCents());
 
-        $machine->sellVendItem(VendItemSelector::water());
+        $result = $machine->sellVendItem(VendItemSelector::water());
 
-        self::assertTrue(true);
+        self::assertSame(35, $result->change()->totalCents());
     }
 }
