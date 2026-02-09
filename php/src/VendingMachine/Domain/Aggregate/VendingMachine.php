@@ -99,6 +99,24 @@ final class VendingMachine
         );
     }
 
+
+    public function refundInsertedCoins(): CoinCollection
+    {
+        $this->ensureOperationIsInClientMode();
+
+        if ($this->insertedCoins->isEmpty()) {
+            return CoinCollection::empty();
+        }
+
+        $returnedCoins = $this->insertedCoins;
+
+        $this->insertedCoins = CoinCollection::empty();
+        $this->mode = $this->mode->toStandBy();
+
+        return $returnedCoins;
+    }
+
+
     private function ensureOperationIsInClientMode(): void
     {
         if ($this->mode->isStandBy()) {

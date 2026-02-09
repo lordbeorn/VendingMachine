@@ -11,6 +11,7 @@ use App\VendingMachine\Domain\Exception\VendItemOutOfStock;
 use App\VendingMachine\Domain\ValueObject\Coin;
 use App\VendingMachine\Domain\ValueObject\VendItemSelector;
 use App\VendingMachine\Domain\ValueObject\VendResult;
+use App\VendingMachine\Domain\ValueObject\CoinCollection;
 use DomainException;
 use PHPUnit\Framework\TestCase;
 
@@ -199,4 +200,73 @@ final class VendingMachineTest extends TestCase
 
         self::assertSame(35, $result->change()->totalCents());
     }
+
+
+   public function test_refund_returns_inserted_coins(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->insertCoin(Coin::twentyFiveCents());
+        $machine->insertCoin(Coin::tenCents());
+        $machine->insertCoin(Coin::fiveCents());
+
+        $returnedCoins = $machine->refundInsertedCoins();
+
+        self::assertInstanceOf(CoinCollection::class, $returnedCoins);
+        self::assertSame(40, $returnedCoins->totalCents());
+        self::assertCount(3, $returnedCoins->coins());
+    }
+
+    public function test_refund_clears_inserted_coins(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->enterServiceMode();
+        $machine->refillVendItem(VendItemSelector::water(), 1);
+        $machine->exitServiceMode();
+
+        $machine->insertCoin(Coin::tenCents());
+
+        $machine->refundInsertedCoins();
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Not enough money.');
+
+        $machine->sellVendItem(VendItemSelector::water());
+    }
+
+    public function test_refund_returns_empty_collection_when_no_coins_inserted(): void
+    {
+        $machine = VendingMachine::install();
+
+        $returnedCoins = $machine->refundInsertedCoins();
+
+        self::assertTrue($returnedCoins->isEmpty());
+        self::assertSame(0, $returnedCoins->totalCents());
+    }
+
+    public function test_refund_switches_machine_back_to_standby(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->insertCoin(Coin::fiveCents());
+
+        $machine->refundInsertedCoins();
+
+        $this->expectException(\App\VendingMachine\Domain\Exception\VendItemOutOfStock::class);
+
+        $machine->sellVendItem(\App\VendingMachine\Domain\ValueObject\VendItemSelector::water());
+    }
+
+    public function test_refund_not_allowed_outside_client_mode(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->enterServiceMode();
+
+        $this->expectException(OperationNotAllowed::class);
+
+        $machine->refundInsertedCoins();
+    }
+
 }
