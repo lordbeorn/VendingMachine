@@ -40,4 +40,13 @@ final class VendItemSelector
         return $this->value === $other->value;
     }
 
+    public function priceCents(): int
+    {
+        return match ($this->value) {
+            self::WATER => 65,
+            self::JUICE => 100,
+            self::SODA  => 150,
+        };
+    }
+
 }

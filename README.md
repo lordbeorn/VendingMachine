@@ -103,4 +103,6 @@ From the request I can identify already several value objects. They are value ob
 
 **VendItemSelector**:
     - I have created this Value Object to represent the business language of selecting an item. 
+    - I have decided to store in this value object the price of a Vend Item because I think this value object it's that related the vending machine selling action with the vend item product.
     - Probably it's one of the VO that could be easily removed or changed in the future if new functionalities are requested.
+    

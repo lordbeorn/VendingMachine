@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\VendingMachine\Domain\ValueObject;
 
 use App\VendingMachine\Domain\ValueObject\VendItemSelector;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class VendItemSelectorTest extends TestCase
@@ -41,21 +42,42 @@ final class VendItemSelectorTest extends TestCase
 
     public function test_different_selectors_are_not_equal(): void
     {
-        $water = VendItemSelector::water();
-        $juice = VendItemSelector::juice();
-        $soda  = VendItemSelector::soda();
+        self::assertFalse(
+            VendItemSelector::water()->equals(VendItemSelector::juice())
+        );
 
-        self::assertFalse($water->equals($juice));
-        self::assertFalse($water->equals($soda));
-        self::assertFalse($juice->equals($soda));
+        self::assertFalse(
+            VendItemSelector::water()->equals(VendItemSelector::soda())
+        );
+
+        self::assertFalse(
+            VendItemSelector::juice()->equals(VendItemSelector::soda())
+        );
     }
 
-    public function test_equality_is_based_on_value_not_identity(): void
-    {
-        $first  = VendItemSelector::juice();
-        $second = VendItemSelector::juice();
+    #[DataProvider('priceProvider')]
+    public function test_price_cents_is_correct(
+        VendItemSelector $selector,
+        int $expectedPrice
+    ): void {
+        self::assertSame($expectedPrice, $selector->priceCents());
+    }
 
-        self::assertNotSame($first, $second);
-        self::assertTrue($first->equals($second));
+    public static function priceProvider(): array
+    {
+        return [
+            'water costs 65 cents' => [VendItemSelector::water(), 65],
+            'juice costs 100 cents' => [VendItemSelector::juice(), 100],
+            'soda costs 150 cents' => [VendItemSelector::soda(), 150],
+        ];
+    }
+
+    public function test_price_is_deterministic_for_equal_selectors(): void
+    {
+        $a = VendItemSelector::juice();
+        $b = VendItemSelector::juice();
+
+        self::assertTrue($a->equals($b));
+        self::assertSame($a->priceCents(), $b->priceCents());
     }
 }
