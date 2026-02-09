@@ -105,4 +105,10 @@ From the request I can identify already several value objects. They are value ob
     - I have created this Value Object to represent the business language of selecting an item. 
     - I have decided to store in this value object the price of a Vend Item because I think this value object it's that related the vending machine selling action with the vend item product.
     - Probably it's one of the VO that could be easily removed or changed in the future if new functionalities are requested.
+
+**AvailableVendItems**:
+    - I had doubts about converting this V.O. in an entity "Stock" because it's mutable and have some kind of identity.
+    - Finally I opted for a Value Object because a stock does not have a real meaning by itself. All the stocks are the same and it does not matter the products or the quantities they have.
+
+    
     
