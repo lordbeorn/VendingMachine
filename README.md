@@ -167,6 +167,7 @@ This slice will have a single Aggregation which Aggregte Root will be VendingMac
     - It centralized all the logic of the different actions.
     - It also ensures de requested logical for selling vend items is followed.
     - It's the only entry point to the aggregate.
+    - As an improvement, I could probably split the client actions and the service actions into behaviours to keep the entity cleaner.
 
 # ENTITIES
 

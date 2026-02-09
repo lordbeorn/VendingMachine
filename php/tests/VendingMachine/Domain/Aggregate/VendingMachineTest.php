@@ -269,4 +269,69 @@ final class VendingMachineTest extends TestCase
         $machine->refundInsertedCoins();
     }
 
+    public function test_replace_available_change_only_allowed_in_service_mode(): void
+    {
+        $machine = VendingMachine::install();
+
+        $this->expectException(OperationNotAllowed::class);
+
+        $machine->replaceAvailableChange(
+            CoinCollection::fromCoins(Coin::fiveCents())
+        );
+    }
+
+    public function test_replace_available_change_overwrites_existing_change(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->enterServiceMode();
+        $machine->refillVendItem(VendItemSelector::water(), 1);
+
+        $machine->replaceAvailableChange(
+            CoinCollection::fromCoins(
+                Coin::twentyFiveCents(),
+                Coin::tenCents(),
+                Coin::fiveCents()
+            )
+        );
+
+        $machine->replaceAvailableChange(
+            CoinCollection::fromCoins(
+                Coin::fiveCents(),
+                Coin::fiveCents()
+            )
+        );
+
+        $machine->exitServiceMode();
+
+        $machine->insertCoin(Coin::hundredCents());
+
+        $this->expectException(CannotMakeExactChange::class);
+
+        $machine->sellVendItem(VendItemSelector::water());
+    }
+
+    public function test_replace_available_change_allows_machine_to_make_change_when_sufficient(): void
+    {
+        $machine = VendingMachine::install();
+
+        $machine->enterServiceMode();
+        $machine->refillVendItem(VendItemSelector::water(), 1);
+
+        $machine->replaceAvailableChange(
+            CoinCollection::fromCoins(
+                Coin::twentyFiveCents(),
+                Coin::tenCents()
+            )
+        );
+
+        $machine->exitServiceMode();
+
+        $machine->insertCoin(Coin::hundredCents());
+
+        $machine->sellVendItem(VendItemSelector::water());
+
+        self::assertTrue(true);
+    }
+
 }

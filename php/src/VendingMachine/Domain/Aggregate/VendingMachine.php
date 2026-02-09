@@ -48,6 +48,11 @@ final class VendingMachine
     }
 
 
+    ///////////////////
+    /// CLIENT ACTIONS
+    ///////////////////
+
+
     public function insertCoin(Coin $coin): void
     {
         $this->ensureOperationIsInClientMode();
@@ -129,6 +134,11 @@ final class VendingMachine
     }
 
 
+    ///////////////////
+    /// SERVICE ACTIONS
+    ///////////////////
+
+
 
     public function enterServiceMode(): void
     {
@@ -158,6 +168,16 @@ final class VendingMachine
 
         $this->availableVendItems = $this->availableVendItems->refill($selector, $units);
     }
+
+    public function replaceAvailableChange(CoinCollection $availableChange): void
+    {
+        if (!$this->mode->isService()) {
+            throw OperationNotAllowed::becauseMachineIsNotInServiceMode();
+        }
+
+        $this->availableChange = $availableChange;
+    }
+
 
 
 }
