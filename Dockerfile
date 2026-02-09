@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zlib1g-dev \
     libxml2-dev \
-    openssl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure intl && \
@@ -17,9 +16,8 @@ RUN docker-php-ext-configure intl && \
         pdo_mysql \
         zip
 
-RUN a2enmod ssl rewrite
-
-
+# Enable only what you need
+RUN a2enmod rewrite
 
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY docker/apache/application.conf /etc/apache2/sites-available/application.conf

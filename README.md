@@ -82,12 +82,14 @@ This slice will have a single Aggregation which Aggregte Root will be VendingMac
 
 From the request I can identify already several value objects. They are value objects as they do not have identity by themselves.
 
-"Coin": 
+**Coin**: 
     - It represents the differente coin values: 5, 10, 25, 100. These values are immutable. I have decided to store them as cents because sometimes PHP has problems with float functions and improves the st ability if I use ints.
 
-"CoinCollection": 
+**CoinCollection**: 
     - It represents in the business language a group of coins. It's not an entity because it does not have a real identity by itself. 
     - I've created it as an array although it could make the performance lower (n2) when chacking the change. It could be improved storing each coin in a different array but that would add complexity.
     - I don't think a machine will have thousands of coins inside so the performance should not change so much in exchange of adding more complexity to the code.
 
-
+**VendItemSelector**:
+    - I have created this Value Object to represent the business language of selecting an item. 
+    - Probably it's one of the VO that could be easily removed or changed in the future if new functionalities are requested.
