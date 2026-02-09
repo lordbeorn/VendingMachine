@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\VendingMachine\Domain\Entity;
+namespace App\Tests\VendingMachine\Domain\Entity;
 
 use App\VendingMachine\Domain\Entity\VendItem;
 use App\VendingMachine\Domain\ValueObject\VendItemSelector;

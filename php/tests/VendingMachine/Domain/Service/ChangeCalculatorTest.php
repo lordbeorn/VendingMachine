@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\VendingMachine\Domain\Service;
+namespace App\Tests\VendingMachine\Domain\Service;
 
 use App\VendingMachine\Domain\Exception\CannotMakeExactChange;
 use App\VendingMachine\Domain\Service\ChangeCalculator;

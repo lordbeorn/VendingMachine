@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\VendingMachine\Domain\ValueObject;
+namespace App\Tests\VendingMachine\Domain\ValueObject;
 
 use App\VendingMachine\Domain\ValueObject\VendItemSelector;
 use PHPUnit\Framework\Attributes\DataProvider;

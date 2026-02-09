@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\VendingMachine\Domain\Aggregate;
+namespace App\Tests\VendingMachine\Domain\Aggregate;
 
 use App\VendingMachine\Domain\Aggregate\VendingMachine;
 use App\VendingMachine\Domain\Exception\CannotMakeExactChange;
