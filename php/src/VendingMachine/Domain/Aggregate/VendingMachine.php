@@ -144,6 +144,8 @@ final class VendingMachine
         $this->availableVendItems =
             $this->availableVendItems->vendOne($selectedVendItem);
 
+        $this->mode = $this->mode->toStandBy();
+
         return VendResult::success(
             $selectedVendItem,
             $changeCoinCollection
@@ -225,6 +227,40 @@ final class VendingMachine
     }
 
 
+    ///////////////////
+    /// READ
+    ///////////////////
+
+
+    public function isStandBy(): bool
+    {
+        return $this->mode->isStandBy();
+    }
+
+    public function isService(): bool
+    {
+        return $this->mode->isService();
+    }
+
+    public function isClient(): bool
+    {
+        return $this->mode->isClient();
+    }
+
+    public function insertedCoins(): CoinCollection
+    {
+        return $this->insertedCoins;
+    }
+
+    public function availableChange(): CoinCollection
+    {
+        return $this->availableChange;
+    }
+
+    public function stock(): AvailableVendItems
+    {
+        return $this->availableVendItems;
+    }
 
 
 }

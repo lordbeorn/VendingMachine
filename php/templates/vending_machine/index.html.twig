@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vending Machine</title>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .notice {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .notice.error {
+            background: #ffe0e0;
+            color: #900;
+        }
+
+        .notice.message {
+            background: #e6fffa;
+            color: #065f46;
+        }
+
+        .panel {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .columns {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .column {
+            flex: 1;
+        }
+
+        .actions h3 {
+            margin-top: 0;
+        }
+
+        button {
+            display: block;
+            margin: 6px 0;
+            padding: 6px 10px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        input[type="number"] {
+            width: 70px;
+            margin-left: 5px;
+        }
+
+        hr {
+            margin: 12px 0;
+        }
+
+        .json-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .json-box {
+            background: #1e1e1e;
+            color: #00ff66;
+            padding: 10px;
+            border-radius: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Vending Machine</h1>
+
+{% if error %}
+    <div class="notice error">{{ error }}</div>
+{% endif %}
+
+{% if message %}
+    <div class="notice message">{{ message }}</div>
+{% endif %}
+
+<div class="panel">
+    <h2>Machine State</h2>
+
+    <div class="json-container">
+        <div class="column">
+            <strong>Current Machine State</strong>
+            <div class="json-box">
+{{ machine_state|json_encode(constant('JSON_PRETTY_PRINT')) }}
+            </div>
+        </div>
+
+        <div class="column">
+            <strong>Persisted JSON File</strong>
+            <div class="json-box">
+{{ json|json_encode(constant('JSON_PRETTY_PRINT')) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel columns actions">
+
+    <!-- SERVICE ACTIONS -->
+    <div class="column">
+        <h3>Service Actions</h3>
+
+        <form method="post">
+            <button name="action" value="enter_service">
+                Enter Service Mode
+            </button>
+
+            <button name="action" value="exit_service">
+                Exit Service Mode
+            </button>
+
+            <hr>
+
+            <strong>Refill Products</strong><br><br>
+
+            Water:
+            <input type="number" name="refill_water" min="0"><br>
+
+            Juice:
+            <input type="number" name="refill_juice" min="0"><br>
+
+            Soda:
+            <input type="number" name="refill_soda" min="0"><br><br>
+
+            <button name="action" value="refill">
+                Refill Products
+            </button>
+
+            <hr>
+
+            <strong>Replace Available Change</strong><br><br>
+
+            5¢:
+            <input type="number" name="coin_5" min="0"><br>
+
+            10¢:
+            <input type="number" name="coin_10" min="0"><br>
+
+            25¢:
+            <input type="number" name="coin_25" min="0"><br>
+
+            100¢:
+            <input type="number" name="coin_100" min="0"><br><br>
+
+            <button name="action" value="replace_change">
+                Replace Change
+            </button>
+        </form>
+    </div>
+
+    <!-- CLIENT ACTIONS -->
+    <div class="column">
+        <h3>Client Actions</h3>
+
+        <form method="post">
+            <strong>Insert Coin</strong>
+
+            <button name="action" value="insert_coin_5">Insert 5¢</button>
+            <button name="action" value="insert_coin_10">Insert 10¢</button>
+            <button name="action" value="insert_coin_25">Insert 25¢</button>
+            <button name="action" value="insert_coin_100">Insert 100¢</button>
+
+            <hr>
+
+<h3>Buy Product</h3>
+
+            <button name="action" value="sell_WATER">
+                Buy Water (65¢)
+            </button>
+
+            <button name="action" value="sell_JUICE">
+                Buy Juice (100¢)
+            </button>
+
+            <button name="action" value="sell_SODA">
+                Buy Soda (150¢)
+            </button>
+
+            <hr>
+
+            <button name="action" value="refund">
+                Return Coins
+            </button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

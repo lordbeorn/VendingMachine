@@ -30,6 +30,17 @@ final class VendItemSelector
         return new self(self::SODA);
     }
 
+
+    public static function fromString(string $value): self
+    {
+        return match (strtoupper($value)) {
+            self::WATER => self::water(),
+            self::JUICE => self::juice(),
+            self::SODA  => self::soda(),
+            default => throw VendItemNotFound::fromString($value),
+        };
+    }
+
     public function value(): string
     {
         return $this->value;
